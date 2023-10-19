@@ -9,12 +9,18 @@ public class Server {
     public ServerSocket aSocket;
     public ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
 
-    public static class ClientHandler {
-        private int id;
+    private static Server server_instance = null;
+
+
+    public class ClientHandler {
+        public int id;
         private Socket socket;
         private ObjectOutputStream outToClient;
         private ObjectInputStream inFromClient;
         static int nextId = 0;
+
+    
+
 
         public ClientHandler(Socket socket) {
             try {
@@ -27,6 +33,8 @@ public class Server {
                 // handle exception
             }
         }
+        
+
 
         public void sendMessage(Object message) {
             try {
@@ -46,13 +54,24 @@ public class Server {
         }
     }
 
-    public Server(int port) {
+    public Server() {
+      
+    }
+
+    public void startServer(int port){
         try {
             this.port = port;
             this.aSocket = new ServerSocket(port);
         } catch (Exception e) {
             // handle exception
         }
+    }
+
+    public static synchronized Server getInstance(){
+        if(server_instance == null){
+            server_instance = new Server();
+        }
+        return server_instance;
     }
 
     public boolean acceptClient() {
@@ -73,6 +92,7 @@ public class Server {
             }
         }
     }
+    
 
     public void broadcastMessage(String message) {
         for (ClientHandler client : clients) {
